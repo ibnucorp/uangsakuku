@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "550027321916",
+    "project_id": "uangsakuku-df22d",
+    "storage_bucket": "uangsakuku-df22d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550027321916:android:590f9b03dba52c58ba5939",
+        "android_client_info": {
+          "package_name": "com.example.uangsakuku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMyqWN2EueXN59ozAyQ6kWRhQvCzhWO7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
