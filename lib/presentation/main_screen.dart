@@ -26,10 +26,12 @@ class _MainScreenState extends State<MainScreen> {
   // Judul untuk app bar
   final List<String> _titles = ["Transaksi", "Kategori"];
 
+  String? _selectedCategory;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(_titles[_currentIndex]),
+      backgroundColor: Colors.grey[200],
       body: _pages[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
@@ -61,6 +63,48 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  Widget _categoryDropdown() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: categoryService.getCategories(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        List<DropdownMenuItem<String>> categoryItems = [];
+
+        if (snapshot.hasData) {
+          final categories = snapshot.data!.docs;
+
+          for (var category in categories) {
+            categoryItems.add(
+              DropdownMenuItem<String>(
+                value: category['name'],
+                child: Text(category['name']),
+              ),
+            );
+          }
+        }
+
+        return DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          decoration: InputDecoration(labelText: "Category"),
+          items: categoryItems,
+          onChanged: (String? value) {
+            setState(() {
+              _selectedCategory = value;
+            });
+          },
+          hint: Text('Select a category'),
+        );
+      },
+    );
+  }
+
   void _showAddMemoDialog(
     BuildContext context,
   ) {
@@ -87,10 +131,7 @@ class _MainScreenState extends State<MainScreen> {
                   decoration: InputDecoration(labelText: "Amount"),
                   keyboardType: TextInputType.number,
                 ),
-                TextField(
-                  controller: _categoryController,
-                  decoration: InputDecoration(labelText: "Category"),
-                ),
+                _categoryDropdown(),
                 SwitchListTile(
                     title: Text("Is Income"),
                     value: isIncome,

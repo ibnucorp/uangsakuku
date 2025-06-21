@@ -30,7 +30,7 @@ class CategoryListScreen extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   child: ListTile(
-                    tileColor: Theme.of(context).colorScheme.primaryContainer,
+                    tileColor: Colors.white,
                     title: Text(category.name),
                     subtitle:
                         Text(category.isIncome ? "Pemasukan" : "Pengeluaran"),
