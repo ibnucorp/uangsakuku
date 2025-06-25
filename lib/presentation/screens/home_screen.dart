@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uangsakuku/models/memo_model.dart';
+import 'package:uangsakuku/services/auth_service.dart';
 import 'package:uangsakuku/services/category_service.dart';
 import 'package:uangsakuku/services/memo_service.dart';
 
@@ -189,17 +190,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  memoService.updateMemo(
-                    memoId,
-                    Memo(
-                        description: _descController.text,
-                        amount: double.parse(_amountController.text),
-                        isIncome: isIncome,
-                        category: _categoryController.text,
-                        transactionDate: memo.transactionDate,
-                        createdAt: memo.createdAt,
-                        updatedAt: Timestamp.now()),
-                  );
+                  final String? uid = Auth().currentUser?.uid;
+                  if (uid != null) {
+                    memoService.updateMemo(
+                      memoId,
+                      Memo(
+                          uid: uid,
+                          description: _descController.text,
+                          amount: double.parse(_amountController.text),
+                          isIncome: isIncome,
+                          category: _categoryController.text,
+                          transactionDate: memo.transactionDate,
+                          createdAt: memo.createdAt,
+                          updatedAt: Timestamp.now()),
+                    );
+                  }
+
                   Navigator.pop(context);
                 },
                 child: Text("Save"),
@@ -216,6 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       stream: categoryService.getCategories(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print(snapshot.error);
           return Text('Error: ${snapshot.error}');
         }
 

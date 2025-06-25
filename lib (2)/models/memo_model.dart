@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Memo {
+  // ✅ Tambahkan field uid untuk menyimpan ID user pemilik memo
   String uid;
   double amount;
   String description;
@@ -10,6 +11,7 @@ class Memo {
   Timestamp createdAt;
   Timestamp updatedAt;
 
+  // ✅ Tambahkan uid di constructor
   Memo({
     required this.uid,
     required this.amount,
@@ -21,9 +23,9 @@ class Memo {
     required this.updatedAt,
   });
 
-// Fungsi untuk mempermudah update data
+  // ✅ Tambahkan uid di copyWith
   Memo copyWith({
-    String? uid,
+    String? uid, // Tambahkan
     double? amount,
     String? description,
     bool? isIncome,
@@ -33,20 +35,21 @@ class Memo {
     Timestamp? updatedAt,
   }) {
     return Memo(
-        uid: uid ?? this.uid,
-        amount: amount ?? this.amount,
-        description: description ?? this.description,
-        isIncome: isIncome ?? this.isIncome,
-        category: category ?? this.category,
-        transactionDate: transactionDate ?? this.transactionDate,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt);
+      uid: uid ?? this.uid, // Tambahkan
+      amount: amount ?? this.amount,
+      description: description ?? this.description,
+      isIncome: isIncome ?? this.isIncome,
+      category: category ?? this.category,
+      transactionDate: transactionDate ?? this.transactionDate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 
-  // Untuk Mengkonversi Data json dari firebase
+  // ✅ Tambahkan pemrosesan uid dari JSON Firebase
   Memo.fromJson(Map<String, Object?> json)
       : this(
-          uid: json['uid']! as String,
+          uid: json['uid']! as String, // Tambahkan
           amount: (json['amount'] ?? 0.0) as double,
           description: json['description']! as String,
           isIncome: json['isIncome']! as bool,
@@ -56,10 +59,10 @@ class Memo {
           updatedAt: json['updatedAt']! as Timestamp,
         );
 
-  // Untuk mengkonversi format data flutter ke json untuk firebase
+  // ✅ Sertakan uid saat konversi ke JSON untuk dikirim ke Firebase
   Map<String, Object?> toJson() {
     return {
-      'uid': uid,
+      'uid': uid, // Tambahkan
       'amount': amount,
       'description': description,
       'isIncome': isIncome,

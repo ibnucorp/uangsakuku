@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uangsakuku/models/category_model.dart';
+import 'package:uangsakuku/services/auth_service.dart';
 
 // Nama Database di firebase
 const String CATEGORY_COLLECTION_REF = 'categories';
@@ -20,7 +21,11 @@ class CategoryService {
 
   // Fungsi untuk mengembalikan isi dari Memos
   Stream<QuerySnapshot> getCategories() {
-    return _categoryRef.snapshots();
+    final String? uid = Auth().currentUser?.uid;
+    return _categoryRef
+        .where('uid', isEqualTo: uid)
+        .orderBy('name')
+        .snapshots();
   }
 
 // Fungsi untuk menambah category

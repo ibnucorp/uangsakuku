@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uangsakuku/models/memo_model.dart';
+import 'package:uangsakuku/services/auth_service.dart';
 
 // Nama Database di firebase
 const String MEMO_COLLECTION_REF = 'memos';
@@ -18,7 +19,11 @@ class MemoService {
 
   // Fungsi untuk mengembalikan isi dari Memos
   Stream<QuerySnapshot> getMemos() {
-    return _memoRef.orderBy('transactionDate', descending: true).snapshots();
+    final String? uid = Auth().currentUser?.uid;
+    return _memoRef
+        .where('uid', isEqualTo: uid)
+        .orderBy('transactionDate', descending: true)
+        .snapshots();
   }
 
 // Fungsi untuk menambah memo

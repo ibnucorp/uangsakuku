@@ -4,10 +4,9 @@ import 'package:uangsakuku/models/category_model.dart';
 import 'package:uangsakuku/models/memo_model.dart';
 import 'package:uangsakuku/presentation/screens/category_list_screen.dart';
 import 'package:uangsakuku/presentation/screens/home_screen.dart';
-import 'package:uangsakuku/presentation/screens/settings_screen.dart';
-import 'package:uangsakuku/services/auth_service.dart';
 import 'package:uangsakuku/services/category_service.dart';
 import 'package:uangsakuku/services/memo_service.dart';
+import 'package:uangsakuku/services/auth_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,26 +18,21 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final MemoService memoService = MemoService();
   final CategoryService categoryService = CategoryService();
-  // untuk index bottom nav bar
+  final Auth auth = Auth(); // ✅ Tambahkan instance Auth
+
   int _currentIndex = 0;
-
-  // link untuk ke halaman
-  final List<Widget> _pages = [
-    HomeScreen(),
-    CategoryListScreen(),
-    SettingsScreen()
-  ];
-
-  // Judul untuk app bar
-  final List<String> _titles = ["Transaksi", "Kategori", "Pengaturan"];
+  final List<Widget> _pages = [HomeScreen(), CategoryListScreen()];
+  final List<String> _titles = ["Transaksi", "Kategori"];
 
   String? _selectedCategory;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(_titles[_currentIndex]),
       backgroundColor: Colors.grey[200],
       body: _pages[_currentIndex],
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _currentIndex == 0
@@ -48,46 +42,38 @@ class _MainScreenState extends State<MainScreen> {
         child: Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() {
-                _currentIndex = index;
-              }),
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.list), label: "Home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.category), label: "Category"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: "Settings")
-          ]),
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() {
+          _currentIndex = index;
+        }),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.category), label: "Category")
+        ],
+      ),
     );
   }
 
   PreferredSizeWidget _appBar(String title) {
-    return AppBar(
-      title: Text(title),
-    );
+    return AppBar(title: Text(title));
   }
 
   Widget _categoryDropdown() {
     return StreamBuilder<QuerySnapshot>(
-      stream: categoryService.getCategories(),
+      stream: categoryService.getCategories(), // ✅ Filter by uid
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print(snapshot.error);
           return Text('Error: ${snapshot.error}');
         }
-
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         }
 
         List<DropdownMenuItem<String>> categoryItems = [];
-
         if (snapshot.hasData) {
           final categories = snapshot.data!.docs;
-
           for (var category in categories) {
             categoryItems.add(
               DropdownMenuItem<String>(
@@ -113,11 +99,8 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _showAddMemoDialog(
-    BuildContext context,
-  ) {
+  void _showAddMemoDialog(BuildContext context) {
     final _descController = TextEditingController();
-    final _categoryController = TextEditingController();
     final _amountController = TextEditingController();
     bool isIncome = true;
 
@@ -141,39 +124,38 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 _categoryDropdown(),
                 SwitchListTile(
-                    title: Text("Is Income"),
-                    value: isIncome,
-                    onChanged: (value) {
-                      setState(() {
-                        isIncome = value;
-                      });
-                    }),
+                  title: Text("Is Income"),
+                  value: isIncome,
+                  onChanged: (value) {
+                    setState(() {
+                      isIncome = value;
+                    });
+                  },
+                ),
               ],
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 child: Text("Cancel"),
               ),
               ElevatedButton(
                 onPressed: () {
-                  final String? uid = Auth().currentUser?.uid;
+                  final uid = auth.currentUser?.uid;
                   if (uid != null) {
                     memoService.addMemo(
                       Memo(
-                          uid: uid,
-                          description: _descController.text,
-                          amount: double.parse(_amountController.text),
-                          isIncome: isIncome,
-                          category: _categoryController.text,
-                          transactionDate: Timestamp.now(),
-                          createdAt: Timestamp.now(),
-                          updatedAt: Timestamp.now()),
+                        description: _descController.text,
+                        amount: double.parse(_amountController.text),
+                        isIncome: isIncome,
+                        category: _selectedCategory ?? "",
+                        transactionDate: Timestamp.now(),
+                        createdAt: Timestamp.now(),
+                        updatedAt: Timestamp.now(),
+                        uid: uid, // ✅ Tambahkan UID
+                      ),
                     );
                   }
-
                   Navigator.pop(context);
                 },
                 child: Text("Save"),
@@ -185,9 +167,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  void _showAddCategoryDialog(
-    BuildContext context,
-  ) {
+  void _showAddCategoryDialog(BuildContext context) {
     final _nameController = TextEditingController();
     bool isIncome = true;
 
@@ -205,30 +185,28 @@ class _MainScreenState extends State<MainScreen> {
                   decoration: InputDecoration(labelText: "Category Name"),
                 ),
                 SwitchListTile(
-                    title: Text("Is Income"),
-                    value: isIncome,
-                    onChanged: (value) {
-                      setState(() {
-                        isIncome = value;
-                      });
-                    }),
+                  title: Text("Is Income"),
+                  value: isIncome,
+                  onChanged: (value) {
+                    setState(() {
+                      isIncome = value;
+                    });
+                  },
+                ),
               ],
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 child: Text("Cancel"),
               ),
               ElevatedButton(
                 onPressed: () {
-                  final String? uid = Auth().currentUser?.uid;
+                  final uid = auth.currentUser?.uid;
                   if (uid != null) {
-                    categoryService.addCategory(Category(
-                        uid: uid,
-                        name: _nameController.text,
-                        isIncome: isIncome));
+                    categoryService.addCategory(
+                      Category(name: _nameController.text, isIncome: isIncome, uid: uid), // ✅ UID
+                    );
                   }
                   Navigator.pop(context);
                 },
