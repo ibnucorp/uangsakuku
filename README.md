@@ -19,6 +19,15 @@ Aplikasi dompet personal berbasis Flutter dengan Firebase untuk mencatat transak
    ```bash
    git clone https://github.com/username/UangSakuKu.git
    ```
+3. Jalankan di vscode:
+   ```bash
+   flutter pub get
+   ```
+4. Kredensial Login
+   ```bash
+   Email : test@mail.com
+   Pass  : test1234
+   ```
 
 ## Tutorial
 
