@@ -49,24 +49,50 @@ class _MyWidgetState extends State<AuthPage> {
 
   Widget _entryField(String title, TextEditingController controller) {
     return TextField(
-      decoration: InputDecoration(labelText: title),
+      decoration: InputDecoration(
+        labelText: title,
+        labelStyle: TextStyle(color: Colors.black54),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black54),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+        ),
+      ),
       controller: controller,
       obscureText: title == 'Password' ? true : false,
+      style: TextStyle(fontSize: 16),
     );
   }
 
   Widget _errorMessage() {
     // fungsi untuk cek isi errorMessage
-    return Text(errorMessage == '' ? '' : 'Error: $errorMessage');
+    return Text(
+      errorMessage == '' ? '' : 'Error: $errorMessage',
+      style: TextStyle(color: Colors.red),
+    );
   }
 
   Widget _submitButton() {
     // menjalankan fungsi dengan cek kondisi isLoginPage
-    return ElevatedButton(
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
         onPressed: isLoginPage
             ? signInWithEmailAndPassword
             : createUserWithEmailAndPassword,
-        child: Text(isLoginPage ? 'Login' : 'Register'));
+        child: Text(
+          isLoginPage ? 'LOGIN' : 'REGISTER',
+          style: TextStyle(fontSize: 16, letterSpacing: 1),
+        ),
+      ),
+    );
   }
 
   // Tombol untuk mengubah kondisi isLoginPage
@@ -77,47 +103,53 @@ class _MyWidgetState extends State<AuthPage> {
           isLoginPage = !isLoginPage;
         });
       },
-      child: Text(isLoginPage
-          ? "Belum punya akun? Daftar disini."
-          : "Sudah punya akun? Login disini"),
+      child: Text(
+        isLoginPage
+            ? "Belum punya akun? Daftar disini."
+            : "Sudah punya akun? Login disini",
+        style: TextStyle(color: Colors.black54),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: const Color.fromARGB(255, 243, 243, 243),
       body: Center(
         child: Container(
           decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.black),
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          padding: EdgeInsets.all(16.0),
-          height: 300,
-          width: 300,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.grey.shade400,
+              )),
+          padding: EdgeInsets.all(32.0),
+          height: MediaQuery.of(context).size.height * 0.7,
+          width: MediaQuery.of(context).size.width * 0.9,
+          constraints: BoxConstraints(maxWidth: 400),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [_title()],
+              Text(
+                'UangSakuKu',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
               ),
-              _errorMessage(),
-              SizedBox(
-                height: 10.0,
-              ),
+              SizedBox(height: 32),
               _entryField('Email', _emailController),
-              SizedBox(
-                height: 10.0,
-              ),
+              SizedBox(height: 24),
               _entryField('Password', _passwordController),
-              SizedBox(
-                height: 10.0,
-              ),
+              SizedBox(height: 8),
+              _errorMessage(),
+              SizedBox(height: 32),
               _submitButton(),
-              _loginOrRegisterButton()
+              SizedBox(height: 16),
+              Center(child: _loginOrRegisterButton()),
             ],
           ),
         ),

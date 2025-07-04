@@ -19,11 +19,21 @@ class CategoryService {
             toFirestore: (category, _) => category.toJson());
   }
 
-  // Fungsi untuk mengembalikan isi dari Memos
+  // Fungsi untuk mengembalikan isi dari Category
   Stream<QuerySnapshot> getCategories() {
     final String? uid = Auth().currentUser?.uid;
     return _categoryRef
         .where('uid', isEqualTo: uid)
+        .orderBy('name')
+        .snapshots();
+  }
+
+  // Fungsi untuk mengembalikan isi dari Category berdasarkan isIncome
+  Stream<QuerySnapshot> getCategoriesByType(bool isIncome) {
+    final String? uid = Auth().currentUser?.uid;
+    return _categoryRef
+        .where('uid', isEqualTo: uid)
+        .where('isIncome', isEqualTo: isIncome)
         .orderBy('name')
         .snapshots();
   }

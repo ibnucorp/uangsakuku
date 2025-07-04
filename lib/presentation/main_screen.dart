@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uangsakuku/models/category_model.dart';
-import 'package:uangsakuku/models/memo_model.dart';
 import 'package:uangsakuku/presentation/screens/category_list_screen.dart';
 import 'package:uangsakuku/presentation/screens/home_screen.dart';
+import 'package:uangsakuku/presentation/screens/memo/add_memo_page.dart';
 import 'package:uangsakuku/presentation/screens/settings_screen.dart';
 import 'package:uangsakuku/services/auth_service.dart';
 import 'package:uangsakuku/services/category_service.dart';
@@ -32,7 +31,6 @@ class _MainScreenState extends State<MainScreen> {
   // Judul untuk app bar
   final List<String> _titles = ["Transaksi", "Kategori", "Pengaturan"];
 
-  String? _selectedCategory;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _currentIndex == 0
-              ? _showAddMemoDialog(context)
+              ? _showAddMemoPage(context)
               : _showAddCategoryDialog(context);
         },
         child: Icon(Icons.add),
@@ -70,118 +68,10 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _categoryDropdown() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: categoryService.getCategories(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          print(snapshot.error);
-          return Text('Error: ${snapshot.error}');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
-
-        List<DropdownMenuItem<String>> categoryItems = [];
-
-        if (snapshot.hasData) {
-          final categories = snapshot.data!.docs;
-
-          for (var category in categories) {
-            categoryItems.add(
-              DropdownMenuItem<String>(
-                value: category['name'],
-                child: Text(category['name']),
-              ),
-            );
-          }
-        }
-
-        return DropdownButtonFormField<String>(
-          value: _selectedCategory,
-          decoration: InputDecoration(labelText: "Category"),
-          items: categoryItems,
-          onChanged: (String? value) {
-            setState(() {
-              _selectedCategory = value;
-            });
-          },
-          hint: Text('Select a category'),
-        );
-      },
-    );
-  }
-
-  void _showAddMemoDialog(
-    BuildContext context,
-  ) {
-    final _descController = TextEditingController();
-    final _categoryController = TextEditingController();
-    final _amountController = TextEditingController();
-    bool isIncome = true;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            title: Text("Add Memo"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _descController,
-                  decoration: InputDecoration(labelText: "Description"),
-                ),
-                TextField(
-                  controller: _amountController,
-                  decoration: InputDecoration(labelText: "Amount"),
-                  keyboardType: TextInputType.number,
-                ),
-                _categoryDropdown(),
-                SwitchListTile(
-                    title: Text("Is Income"),
-                    value: isIncome,
-                    onChanged: (value) {
-                      setState(() {
-                        isIncome = value;
-                      });
-                    }),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final String? uid = Auth().currentUser?.uid;
-                  if (uid != null) {
-                    memoService.addMemo(
-                      Memo(
-                          uid: uid,
-                          description: _descController.text,
-                          amount: double.parse(_amountController.text),
-                          isIncome: isIncome,
-                          category: _categoryController.text,
-                          transactionDate: Timestamp.now(),
-                          createdAt: Timestamp.now(),
-                          updatedAt: Timestamp.now()),
-                    );
-                  }
-
-                  Navigator.pop(context);
-                },
-                child: Text("Save"),
-              ),
-            ],
-          );
-        });
-      },
+  void _showAddMemoPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddMemoPage()),
     );
   }
 

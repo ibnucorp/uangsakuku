@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:uangsakuku/firebase_options.dart';
-import 'package:uangsakuku/presentation/main_screen.dart';
 import 'package:uangsakuku/widget_tree.dart';
 
 void main() async {
@@ -18,9 +17,26 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: WidgetTree(),
+      theme: CustomTheme.lightThemeData(context),
     );
+  }
+}
+
+class CustomTheme {
+  // Tema kustom
+  static ThemeData lightThemeData(BuildContext context) {
+    return ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.green,
+            surface: Colors.white,
+            error: Colors.red,
+            onTertiary: Colors.orange));
+  }
+
+  static ThemeData darkThemeData() {
+    return ThemeData(useMaterial3: true);
   }
 }
